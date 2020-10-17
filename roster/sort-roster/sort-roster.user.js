@@ -25,10 +25,11 @@ function getCutoffTime(today, hour) {
   let year, month, day, date, min;
   let delta = cutoffDays * 86400000;
   day = today.getDay();
-  //if Sunday or Monday, then back up to Friday.
-  if(day==0) {
+  //if Saturday or Sunday, then back up to Thursday.
+  //if Monday, then back up to Friday.
+  if(day==6) {
     delta = delta + 86400000;
-  } else if(day==1) {
+  } else if(day==1 || day==0) {
     delta = delta + 2*86400000;
   }
   let cutdate = new Date(today - delta);
