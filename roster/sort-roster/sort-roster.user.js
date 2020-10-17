@@ -4,9 +4,74 @@
 // @description Allows sorting on any column of the Canvas Course Roster
 // @include     https://*.instructure.com/courses/*/users
 // @require     https://cdn.jsdelivr.net/combine/npm/jquery@3.4.1/dist/jquery.slim.min.js,npm/tablesorter@2.31.1
-// @version     7
+// @version     7.1
 // @grant       none
 // ==/UserScript==
+
+/**
+ * Constants
+ */
+const highlightColor = "#FFFF00";
+const cutoffDays = 1; // cutoff on prior day
+const cutoffHour = 15; // 3pm
+
+/**
+ * Determines if a date is before the cutoff
+ * @param {Date} date The date to compare to the cutoff
+ * @return {Boolean} is the date before the cuttoff
+ */
+function isBeforeCutoff(date) {
+  let dt = new Date();
+  if(date < getCutoffTime(dt, cutoffHour)) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Get the date and time of the cutoff
+ * @param {Date}    today   Today's date
+ * @param {Number}  hour    Hour to use for cutoff in 24-hour format
+ * @return {Date} The cutoff date and time
+ */
+function getCutoffTime(today, hour) {
+  let year, month, day, date, min;
+  let delta = cutoffDays * 86400000;
+  day = today.getDay();
+  if(day==0) {
+    delta = delta + 86400000;
+  } else if(day==1) {
+    delta = delta + 2*86400000;
+  }
+  let cutdate = new Date(today - delta);
+  year = cutdate.getFullYear();
+  month = cutdate.getMonth();
+  date = cutdate.getDate();
+  return new Date(year, month, date, hour, 0, 0);
+}
+
+/**
+ * Color the rows prior to the cutoff that are not observers
+ * @param {JQuery}    jq          The document's JQuery object
+ * @param {Date}      date        The last attendance date
+ * @param {TableCell} cell        The last attendance cell
+ * @param {Number}    cellIndex   The column index of the cell
+ */
+function colorRowsBeforeCutoff(jq, date, cell, cellIndex) {
+  if(isBeforeCutoff(date)) {
+    let prevCell = jq(cell).prev();
+    let prevText = jq(cell).prev().text();
+    if(!prevText.includes("Observing")) {
+      cell.style.backgroundColor = highlightColor;
+      jq(cell).next().css("backgroundColor",highlightColor);
+      for(let i = cellIndex; i > 0; i--) {
+        prevCell.css("backgroundColor",highlightColor);
+        prevCell = prevCell.prev();
+      }
+    }
+  }
+}
+
 (function() {
   'use strict';
 
@@ -193,7 +258,14 @@
               hour = 0;
               min = 0;
             }
-            tm = new Date(year, month, day, hour, min, 0).toISOString();
+
+            /**
+             * Color the rows of students who didn't attend today
+             */
+            let attendDate = new Date(year, month, day, hour, min, 0);
+            colorRowsBeforeCutoff(jq, attendDate, cell, cellIndex);
+
+            tm = attendDate.toISOString();
             return tm;
           },
           'parsed' : false,
