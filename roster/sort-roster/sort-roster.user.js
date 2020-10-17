@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name        Sort the Roster
+// @name        Sort the Roster (with Highlighting)
 // @namespace   https://github.com/jamesjonesmath/canvancement
-// @description Allows sorting on any column of the Canvas Course Roster
+// @description Allows sorting and highlighting of Canvas roster.
 // @include     https://*.instructure.com/courses/*/users
 // @require     https://cdn.jsdelivr.net/combine/npm/jquery@3.4.1/dist/jquery.slim.min.js,npm/tablesorter@2.31.1
-// @version     7.1
+// @version     0.5
 // @grant       none
 // ==/UserScript==
 
@@ -14,19 +14,6 @@
 const highlightColor = "#FFFF00";
 const cutoffDays = 1; // cutoff on prior day
 const cutoffHour = 15; // 3pm
-
-/**
- * Determines if a date is before the cutoff
- * @param {Date} date The date to compare to the cutoff
- * @return {Boolean} is the date before the cuttoff
- */
-function isBeforeCutoff(date) {
-  let dt = new Date();
-  if(date < getCutoffTime(dt, cutoffHour)) {
-    return true;
-  }
-  return false;
-}
 
 /**
  * Get the date and time of the cutoff
@@ -58,7 +45,9 @@ function getCutoffTime(today, hour) {
  * @param {Number}    cellIndex   The column index of the cell
  */
 function colorRowsBeforeCutoff(jq, date, cell, cellIndex) {
-  if(isBeforeCutoff(date)) {
+  let currentTime = new Date();
+  // highlight only if the cell's date is before the cutoff
+  if(date < getCutoffTime(currentTime, cutoffHour)) {
     let prevCell = jq(cell).prev();
     let prevText = jq(cell).prev().text();
     if(!prevText.includes("Observing")) {
