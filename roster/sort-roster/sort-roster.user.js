@@ -11,9 +11,10 @@
 /**
  * Constants
  */
-const highlightColor = "#FFFF00";
-const cutoffDays = 1; // cutoff on prior day
-const cutoffHour = 15; // 3pm
+var highlightColor = "#FFFF00";
+var cutoffDays = 1; // cutoff on prior day
+var cutoffHour = 15; // 3pm
+const cName = "sort_highlighter_settings";
 
 /**
  * Get the date and time of the cutoff
@@ -60,6 +61,53 @@ function colorRowsBeforeCutoff(jq, date, cell, cellIndex) {
         prevCell = prevCell.prev();
       }
     }
+  }
+}
+
+
+
+/**
+ * Creates a cookie to save information
+ * @param {String} cname  The cookie's name
+ * @param {String} cvalue The cookie's value
+ * @param {Number} exdays The cookie's lifespan
+ */
+function setHighlightSettings(cvalue) {
+  let exdays = 30;
+  let d = new Date();
+  let cvalue = highlightColor + "," + cutoffDays + "," + cutoffHour;
+  d.setTime(d.getTime() + (exdays*24*60*60*1000));
+  let expires = "expires="+ d.toUTCString();
+  document.cookie = cName + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+/**
+ * Reads a cookie to save information
+ * @param {String} cname  The cookie's name
+ * @return {String} The value of the cookie
+ */
+function getHighlightSettings() {
+  let name = cName + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+function parseHighlightSettings(text) {
+  let values = text.split(',');
+  if(values.length === 3) {
+    highlightColor = values[0];
+    cutoffDays = values[1];
+    cutoffHour = values[2];
   }
 }
 
