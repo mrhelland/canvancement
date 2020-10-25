@@ -11,7 +11,7 @@
 /**
  * Constants
  */
-const highlightColor = "#FFFF00";
+const highlightColor = "#FFFF99";
 const cutoffDays = 1; // cutoff on prior day
 const cutoffHour = 15; // 3pm
 
