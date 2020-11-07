@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name        Sort Content Selector List
-// @namespace   https://github.com/jamesjonesmath/canvancement
-// @description Alphabetically sort the items in the content selector
+// @namespace   https://github.com/mrhelland/canvancement
+// @description Generate a jump menu for longer module pages
 // @include     https://*.instructure.com/courses/*/modules
-// @version     1
+// @version     0.1
 // @grant       none
 // ==/UserScript==
 (function() {
