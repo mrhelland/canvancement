@@ -9,7 +9,8 @@
 // ==/UserScript==
 
 function getJumpTile(jq, module) {
-  let jumpID = module.
+  console.log(module);
+  let jumpID = module.attr("id");
   let tileTemplate = "<div class='lcsd-jump-tile'><a href='[[JUMP_LINK]]'>[[MODULE_HEADER]]<div class='lcsd-jump-body'>[[MODULE_ITEMS]]<div class='lcsd-jump-fadeout'></div></div></a>"
   let moduleHeaderHTML = "<div class='lcsd-jump-header'>" 
                         + "<div class='lcsd-jump-moduletitle'>"
@@ -23,15 +24,23 @@ function getJumpTile(jq, module) {
                     + "</div>"; 
   }
 
-
+  let html = "<div class='lcsd-jump-tile'><a href='"
+              + module.attr("id") + moduleHeaderHTML 
+              + moduleItemsHTML + "<div class='lcsd-jump-fadeout'></div></div></a></div>"; 
+  return html;
 }
 
-function buildJumpContainer(jq) {
+function buildJumpContainer(jq, mountPoint) {
   let modules = jq(".context_module");
   let innerHTML = "";
   for (let i = 0; i < modules.length; i++) {
-    innerHTML += getJumpTile(modules[i]);
+    innerHTML += getJumpTile(jq, modules[i]);
   }
+  mountPoint.html(innerHTML);
+}
+
+function injectCSS(jq) {
+  
 }
 
 (function() {
@@ -44,9 +53,13 @@ function buildJumpContainer(jq) {
 
   let jq = jQuery().jquery === '1.7.2' ? jQuery : jQuery.noConflict();
 
-  let mountPoint = jq("#external-tool-mount-point");
 
-  buildJumpContainer(jq);
+
+  jq.ready ( function() {
+    let mountPoint = jq("#external-tool-mount-point");
+    buildJumpContainer(jq, mountPoint);
+  });
+
 
  
 })();
