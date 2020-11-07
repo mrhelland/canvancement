@@ -40,7 +40,7 @@ function buildJumpContainer(jq, mountPoint) {
 }
 
 function injectCSS(jq) {
-  
+
 }
 
 (function() {
@@ -52,7 +52,7 @@ function injectCSS(jq) {
   }
 
   let jq = jQuery().jquery === '1.7.2' ? jQuery : jQuery.noConflict();
-
+  jq('head').append('<link rel="stylesheet" type="text/css" href="https://raw.githubusercontent.com/mrhelland/canvancement/alpha/modules/jump-menu.css">');
 
 
   jq.ready ( function() {
