@@ -13,8 +13,8 @@ NOTE: injectCSS() and its references should be removed if the CSS styles can be 
 to an external stylesheet.
 */
 
-var checkboxID = "lcsd-jump-checkbox";
-var defaultState = "checked";
+var lcsdJumpCheckboxID = "lcsd-jump-checkbox";
+var lcsdJumpDefaultState = "checked";
 
 function getJumpTileHTML(jq, module) {
   let moduleTitle = jq(module).children('.header').children('.ig-header-title').children('span').first().text();
@@ -47,7 +47,7 @@ function injectCSS(jq) {
   // TODO: remove this reference when external CSS stylesheet exists
   injectCSS(jq);
 
-  let savedState = localStorage.getItem(checkboxID) || defaultState;
+  let savedState = localStorage.getItem(lcsdJumpCheckboxID) || lcsdJumpDefaultState;
   let $mountPoint = jq("#external-tool-mount-point");
   let $modules = jq(".context_module");
 
@@ -56,7 +56,7 @@ function injectCSS(jq) {
   for (let i = 0; i < Math.max(0, $modules.length - 1); i++) {
     innerHTML += getJumpTileHTML(jq, $modules[i]);
   }
-  $mountPoint.append("<div id='lcsd-jump-toc'><label for='"+checkboxID+"'><input type='checkbox' id='"+checkboxID+"'> Table of Contents</label></div><div id='lcsd-jump-container'>" + innerHTML + "</div>");
+  $mountPoint.append("<div id='lcsd-jump-toc'><label for='"+lcsdJumpCheckboxID+"'><input type='checkbox' id='"+lcsdJumpCheckboxID+"'> Table of Contents</label></div><div id='lcsd-jump-container'>" + innerHTML + "</div>");
   
   //inject ToTop links
   for (let i = 0; i < Math.max(0, $modules.length - 1); i++) {
@@ -65,20 +65,20 @@ function injectCSS(jq) {
 
   //read currently saved checkbox state
   if(savedState === "checked") {
-    jq("#"+checkboxID).prop("checked", true);
+    jq("#"+lcsdJumpCheckboxID).prop("checked", true);
     jq("#lcsd-jump-container").show();
   } else {
-    jq("#"+checkboxID).prop("checked", false);
+    jq("#"+lcsdJumpCheckboxID).prop("checked", false);
     jq("#lcsd-jump-container").hide();
   }
 
   //update saved checkbox state on change
   jq("#lcsd-jump-toc").on("change", "input", function() {
     if(!jq(this).is(":checked")) {
-      localStorage.setItem(checkboxID, "unchecked");
+      localStorage.setItem(lcsdJumpCheckboxID, "unchecked");
       jq("#lcsd-jump-container").hide();
     } else {
-      localStorage.setItem(checkboxID, "checked");
+      localStorage.setItem(lcsdJumpCheckboxID, "checked");
       jq("#lcsd-jump-container").show();
     }
   });

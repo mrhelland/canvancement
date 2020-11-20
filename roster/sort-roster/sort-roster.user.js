@@ -8,61 +8,6 @@
 // @grant       none
 // ==/UserScript==
 
-/**
- * Constants
- */
-const highlightColor = "#FFFF99";
-const cutoffDays = 1; // cutoff on prior day
-const cutoffHour = 15; // 3pm
-
-/**
- * Get the date and time of the cutoff
- * @param {Date}    today   Today's date
- * @param {Number}  hour    Hour to use for cutoff in 24-hour format
- * @return {Date} The cutoff date and time
- */
-function getCutoffTime(today, hour) {
-  let year, month, day, date, min;
-  let delta = cutoffDays * 86400000;
-  day = today.getDay();
-  //if Saturday or Sunday, then back up to Thursday.
-  //if Monday, then back up to Friday.
-  if(day==6) {
-    delta = delta + 86400000;
-  } else if(day==1 || day==0) {
-    delta = delta + 2*86400000;
-  }
-  let cutdate = new Date(today - delta);
-  year = cutdate.getFullYear();
-  month = cutdate.getMonth();
-  date = cutdate.getDate();
-  return new Date(year, month, date, hour, 0, 0);
-}
-
-/**
- * Color the rows prior to the cutoff that are not observers
- * @param {JQuery}    jq          The document's JQuery object
- * @param {Date}      date        The last attendance date
- * @param {TableCell} cell        The last attendance cell
- * @param {Number}    cellIndex   The column index of the cell
- */
-function colorRowsBeforeCutoff(jq, date, cell, cellIndex) {
-  let currentTime = new Date();
-  // highlight only if the cell's date is before the cutoff
-  if(date < getCutoffTime(currentTime, cutoffHour)) {
-    let prevCell = jq(cell).prev();
-    let prevText = jq(cell).prev().text();
-    if(!prevText.includes("Observing")) {
-      cell.style.backgroundColor = highlightColor;
-      jq(cell).next().css("backgroundColor",highlightColor);
-      for(let i = cellIndex; i > 0; i--) {
-        prevCell.css("backgroundColor",highlightColor);
-        prevCell = prevCell.prev();
-      }
-    }
-  }
-}
-
 (function() {
   'use strict';
 
@@ -70,6 +15,48 @@ function colorRowsBeforeCutoff(jq, date, cell, cellIndex) {
   if (!pageRegex.test(window.location.pathname)) {
     return;
   }
+
+  const lcsdRosterCheckBoxID = "lcsd-roster-checkbox";
+  const lcsdRosterHighlightColor = "#FFFF99";
+  const lcsdRosterCutoffDays = 1; // cutoff on prior day
+  const lcsdRosterCutoffHour = 15; // 3pm
+
+  let getCutoffTime = function(today, hour) {
+    let year, month, day, date, min;
+    let delta = lcsdRosterCutoffDays * 86400000;
+    day = today.getDay();
+    //if Saturday or Sunday, then back up to Thursday.
+    //if Monday, then back up to Friday.
+    if(day==6) {
+      delta = delta + 86400000;
+    } else if(day==1 || day==0) {
+      delta = delta + 2*86400000;
+    }
+    let cutdate = new Date(today - delta);
+    year = cutdate.getFullYear();
+    month = cutdate.getMonth();
+    date = cutdate.getDate();
+    return new Date(year, month, date, hour, 0, 0);
+  }
+
+  let colorRowsBeforeCutoff = function(jq, date, cell, cellIndex) {
+    let currentTime = new Date();
+    // highlight only if the cell's date is before the cutoff
+    if(date < getCutoffTime(currentTime, lcsdRosterCutoffHour)) {
+      let prevCell = jq(cell).prev();
+      let prevText = jq(cell).prev().text();
+      if(!prevText.includes("Observing")) {
+        cell.style.backgroundColor = lcsdRosterHighlightColor;
+        jq(cell).next().css("backgroundColor",lcsdRosterHighlightColor);
+        for(let i = cellIndex; i > 0; i--) {
+          prevCell.css("backgroundColor",lcsdRosterHighlightColor);
+          prevCell = prevCell.prev();
+        }
+      }
+    }
+  }
+
+
 
   var rosterColumns = {
     'avatar' : {
