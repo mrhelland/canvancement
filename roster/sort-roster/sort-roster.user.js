@@ -17,6 +17,7 @@
   }
 
   const lcsdRosterCheckBoxID = "lcsd-roster-checkbox";
+  const lcsdRosterDefaultState = "checked";
   const lcsdRosterHighlightColor = "#FFFF99";
   const lcsdRosterCutoffDays = 1; // cutoff on prior day
   const lcsdRosterCutoffHour = 15; // 3pm
