@@ -8,6 +8,18 @@
 // @grant       none
 // ==/UserScript==
 
+/*
+TODO: injectCSS() and its references should be removed if the CSS styles can be added to an external stylesheet.
+*/
+function injectCSS(jq) {
+  let css = "<style type='text/css'>" + 
+      "#lcsd-highlight-container{display:block;}" +
+      "#lcsd-highlight-container label{font-size:0.95em;margin-right:16px;}" +
+      "#lcsd-highlight-container input[type='checkbox']{vertical-align:0px; transform:scale(1.2,1.2); margin-right:4px;}" + 
+      "#lcsd-highlight-container input[type='text']{vertical-align:1px;padding:1px;width:7em;}" + 
+      "</style>";
+  jq('head').append(css);
+}
 
 (function() {
   'use strict';
@@ -18,19 +30,37 @@
   }
 
   const lcsdRosterCheckboxID = "lcsd-roster-checkbox";
+  const lcsdRosterTextboxID = "lcsd-roster-textbox";
   const lcsdRosterDefaultState = "checked";
-  const lcsdRosterHighlightColor = "#FFFF99";
+  const lcsdRosterDefaultColor = "#FFFF99";
   const lcsdRosterCutoffDays = 1; // cutoff on prior day
   const lcsdRosterCutoffHour = 15; // 3pm
   let savedState = lcsdRosterDefaultState;
+  let savedColor = lcsdRosterDefaultColor;
 
   let insertCheckBox = function(jq) {
-    let $mountPoint = jq("#content .ic-Action-header");$mountPoint.prepend("<div id='lcsd-highlight-container'><label for='"+lcsdRosterCheckboxID+"'><input type='checkbox' id='"+lcsdRosterCheckboxID+"'> Enable Row Highlighting</label></div>");
+    let $mountPoint = jq("#content .ic-Action-header");
+    let html = "<div id='lcsd-highlight-container'><label for='"+     
+        lcsdRosterCheckboxID + "'><input type='checkbox' id='" +
+        lcsdRosterCheckboxID + "'> Enable Row Highlighting</label></div>";
+    $mountPoint.prepend(html);
+  }
+
+  let insertTextBox = function(jq) {
+    let $mountPoint = jq("#lcsd-highlight-container");
+    if(savedState === "checked") {
+      let html = "<label for='" + lcsdRosterTextboxID + 
+              "'> <input type='text' id='"+lcsdRosterTextboxID + 
+              "'> (e.g. #FFFF99, orange)</label>";
+      $mountPoint.append(html);
+      jq("#"+lcsdRosterTextboxID).val(savedColor);
+    }
   }
 
   let updateCheckboxState = function(jq) {
     //read currently saved checkbox state
     savedState = localStorage.getItem(lcsdRosterCheckboxID) || lcsdRosterDefaultState;
+    savedColor = localStorage.getItem(lcsdRosterTextboxID) || lcsdRosterDefaultColor;
     if(savedState === "checked") {
       jq("#"+lcsdRosterCheckboxID).prop("checked", true);
     } else {
@@ -38,12 +68,19 @@
     }
 
     //update saved checkbox state on change
-    jq("#lcsd-highlight-container").on("change", "input", function() {
+    jq("#lcsd-highlight-container").on("change", "input[type='checkbox']", function() {
       if(!jq(this).is(":checked")) {
         localStorage.setItem(lcsdRosterCheckboxID, "unchecked");
       } else {
         localStorage.setItem(lcsdRosterCheckboxID, "checked");
       }
+      location.reload();
+    });
+
+    //update saved checkbox state on change
+    jq("#lcsd-highlight-container").on("change", "input[type='text']", function() {
+      savedColor = jq("#"+lcsdRosterTextboxID).val();
+      localStorage.setItem(lcsdRosterTextboxID, savedColor);
       location.reload();
     });
   }
@@ -76,10 +113,11 @@
       let prevCell = jq(cell).prev();
       let prevText = jq(cell).prev().text();
       if(!prevText.includes("Observing")) {
-        cell.style.backgroundColor = lcsdRosterHighlightColor;
-        jq(cell).next().css("backgroundColor",lcsdRosterHighlightColor);
+        cell.style.backgroundColor = savedColor;
+        jq(cell).next().css("backgroundColor",savedColor);
+        jq(cell).next().next().css("backgroundColor", savedColor);
         for(let i = cellIndex; i > 0; i--) {
-          prevCell.css("backgroundColor",lcsdRosterHighlightColor);
+          prevCell.css("backgroundColor",savedColor);
           prevCell = prevCell.prev();
         }
       }
@@ -143,8 +181,10 @@
 
   let jq = jQuery().jquery === '1.7.2' ? jQuery : jQuery.noConflict();
 
+  injectCSS(jq);
   insertCheckBox(jq);
   updateCheckboxState(jq);
+  insertTextBox(jq);
 
   if (typeof jq.fn.tablesorter === 'undefined') {
     const script = document.createElement('script');
