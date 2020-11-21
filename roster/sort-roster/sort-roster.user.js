@@ -8,6 +8,7 @@
 // @grant       none
 // ==/UserScript==
 
+
 (function() {
   'use strict';
 
@@ -16,11 +17,36 @@
     return;
   }
 
-  const lcsdRosterCheckBoxID = "lcsd-roster-checkbox";
+  const lcsdRosterCheckboxID = "lcsd-roster-checkbox";
   const lcsdRosterDefaultState = "checked";
   const lcsdRosterHighlightColor = "#FFFF99";
   const lcsdRosterCutoffDays = 1; // cutoff on prior day
   const lcsdRosterCutoffHour = 15; // 3pm
+  let savedState = lcsdRosterDefaultState;
+
+  let insertCheckBox = function(jq) {
+    let $mountPoint = jq("#content .ic-Action-header");$mountPoint.prepend("<div id='lcsd-highlight-container'><label for='"+lcsdRosterCheckboxID+"'><input type='checkbox' id='"+lcsdRosterCheckboxID+"'> Enable Row Highlighting</label></div>");
+  }
+
+  let updateCheckboxState = function(jq) {
+    //read currently saved checkbox state
+    savedState = localStorage.getItem(lcsdRosterCheckboxID) || lcsdRosterDefaultState;
+    if(savedState === "checked") {
+      jq("#"+lcsdRosterCheckboxID).prop("checked", true);
+    } else {
+      jq("#"+lcsdRosterCheckboxID).prop("checked", false);
+    }
+
+    //update saved checkbox state on change
+    jq("#lcsd-highlight-container").on("change", "input", function() {
+      if(!jq(this).is(":checked")) {
+        localStorage.setItem(lcsdRosterCheckboxID, "unchecked");
+      } else {
+        localStorage.setItem(lcsdRosterCheckboxID, "checked");
+      }
+      location.reload();
+    });
+  }
 
   let getCutoffTime = function(today, hour) {
     let year, month, day, date, min;
@@ -41,6 +67,9 @@
   }
 
   let colorRowsBeforeCutoff = function(jq, date, cell, cellIndex) {
+    if(savedState === "unchecked") {
+      return;
+    }
     let currentTime = new Date();
     // highlight only if the cell's date is before the cutoff
     if(date < getCutoffTime(currentTime, lcsdRosterCutoffHour)) {
@@ -113,6 +142,9 @@
   };
 
   let jq = jQuery().jquery === '1.7.2' ? jQuery : jQuery.noConflict();
+
+  insertCheckBox(jq);
+  updateCheckboxState(jq);
 
   if (typeof jq.fn.tablesorter === 'undefined') {
     const script = document.createElement('script');
