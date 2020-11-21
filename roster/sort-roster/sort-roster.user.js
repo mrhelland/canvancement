@@ -16,7 +16,7 @@ function injectCSS(jq) {
       "#lcsd-highlight-container{display:block;}" +
       "#lcsd-highlight-container label{font-size:0.95em;margin-right:16px;}" +
       "#lcsd-highlight-container input[type='checkbox']{vertical-align:0px; transform:scale(1.2,1.2); margin-right:4px;}" + 
-      "#lcsd-highlight-container input[type='text']{vertical-align:1px;padding:1px;width:7em;}" + 
+      "#lcsd-highlight-container input[type='text']{vertical-align:1px;padding:2px 8px 2px 8px;width:7em;}" + 
       "</style>";
   jq('head').append(css);
 }
@@ -42,7 +42,7 @@ function injectCSS(jq) {
     let $mountPoint = jq("#content .ic-Action-header");
     let html = "<div id='lcsd-highlight-container'><label for='"+     
         lcsdRosterCheckboxID + "'><input type='checkbox' id='" +
-        lcsdRosterCheckboxID + "'> Enable Row Highlighting</label></div>";
+        lcsdRosterCheckboxID + "'> Highlight Absences</label></div>";
     $mountPoint.prepend(html);
   }
 
@@ -54,6 +54,7 @@ function injectCSS(jq) {
               "'> (e.g. #FFFF99, orange)</label>";
       $mountPoint.append(html);
       jq("#"+lcsdRosterTextboxID).val(savedColor);
+      jq("#"+lcsdRosterTextboxID).css({"background-color": savedColor});
     }
   }
 
