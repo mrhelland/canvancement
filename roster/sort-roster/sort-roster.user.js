@@ -307,8 +307,20 @@ function injectCSS(jq) {
               }
               min = parseInt(timeMatch[2]);
             } else {
-              hour = 0;
-              min = 0;
+              //CORRECTION (12/31/2020): time is not always in hh:mm format
+              timeRegex = new RegExp('(\\d+)(am|pm)?$');
+              if (typeof timeMatch[1] !== 'undefined') {
+                if (hour == 12) {
+                  hour = 0;
+                }
+                if (timeMatch[2] == 'pm') {
+                  hour += 12;
+                }
+              }
+              else {
+                hour = 0;
+                min = 0;
+              }
             }
 
             /**
