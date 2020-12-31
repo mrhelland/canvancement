@@ -307,17 +307,24 @@ function injectCSS(jq) {
               }
               min = parseInt(timeMatch[2]);
             } else {
-              //CORRECTION (12/31/2020): time is not always in hh:mm format
+              //ADDED (12/31/2020): Time is not in hh:mm format near top of hour
               timeRegex = new RegExp('(\\d+)(am|pm)?$');
-              if (typeof timeMatch[1] !== 'undefined') {
-                if (hour == 12) {
+              if(timeRegex.test(s)) {
+                timeMatch = timeRegex.exec(s);
+                hour = parseInt(timeMatch[1]);
+                min = 0;
+                if (typeof timeMatch[2] !== 'undefined') {
+                  if (hour == 12) {
+                    hour = 0;
+                  }
+                  if (timeMatch[2] == 'pm') {
+                    hour += 12;
+                  }
+                } else {
                   hour = 0;
                 }
-                if (timeMatch[2] == 'pm') {
-                  hour += 12;
-                }
-              }
-              else {
+              } else {
+                // something bad happened...minimize the damage
                 hour = 0;
                 min = 0;
               }
