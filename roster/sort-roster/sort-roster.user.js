@@ -293,6 +293,8 @@ function injectCSS(jq) {
             } else {
               month = now.getMonth();
               day = now.getDay();
+              //BUGFIX: Force highlighting when the last access date isn't recognized.
+              year = 2000;
             }
             if (timeRegex.test(s)) {
               var timeMatch = timeRegex.exec(s);
